@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "douyin-llmwiki"
+version = "0.1.0"
+description = "Ingest public Douyin video audio into an Obsidian LLMWiki note."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "oss2>=2.18.0",
+  "python-dotenv>=1.0.1",
+  "requests>=2.32.0",
+  "yt-dlp>=2025.1.0"
+]
+
+[project.scripts]
+douyin-llmwiki = "douyin_llmwiki.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
