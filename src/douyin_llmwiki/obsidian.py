@@ -49,6 +49,7 @@ def render_note(
     frontmatter = [
         "---",
         f"title: {_yaml_quote(metadata.title)}",
+        "note_type: llmwiki-video-summary",
         "source: douyin",
         f"source_url: {_yaml_quote(metadata.webpage_url or metadata.source_url)}",
         f"video_id: {_yaml_quote(metadata.video_id)}",
@@ -71,6 +72,12 @@ def render_note(
         f"- 发布者：{metadata.uploader or '未知'}",
         f"- 视频 ID：`{metadata.video_id}`",
         "",
+        "## 知识沉淀",
+        "",
+        f"**主题**：{summary.knowledge_title or metadata.title}",
+        "",
+        f"**定义**：{summary.knowledge_definition or summary.summary}",
+        "",
         "## 摘要",
         "",
         summary.summary,
@@ -83,9 +90,41 @@ def render_note(
         "",
         *_bullet_lines(summary.concepts),
         "",
+        "## 适用场景",
+        "",
+        *_bullet_lines(summary.use_cases),
+        "",
+        "## 前置条件",
+        "",
+        *_bullet_lines(summary.prerequisites, empty="暂无明确前置条件。"),
+        "",
+        "## 操作流程",
+        "",
+        *_ordered_lines(summary.workflow_steps),
+        "",
+        "## 判断准则",
+        "",
+        *_bullet_lines(summary.decision_rules),
+        "",
+        "## 常见误区",
+        "",
+        *_bullet_lines(summary.pitfalls),
+        "",
+        "## 实践模板",
+        "",
+        *_bullet_lines(summary.practice_template),
+        "",
         "## 可执行事项",
         "",
         *_bullet_lines(summary.actions, empty="暂无明确行动项。"),
+        "",
+        "## 复习问题",
+        "",
+        *_bullet_lines(summary.review_questions),
+        "",
+        "## 可迁移方法",
+        "",
+        *_bullet_lines(summary.transferable_methods),
         "",
         "## 相关主题",
         "",
@@ -118,6 +157,12 @@ def _bullet_lines(items: list[str], empty: str = "暂无。") -> list[str]:
     if not items:
         return [empty]
     return [f"- {item}" for item in items]
+
+
+def _ordered_lines(items: list[str], empty: str = "暂无明确流程。") -> list[str]:
+    if not items:
+        return [empty]
+    return [f"{index}. {item}" for index, item in enumerate(items, start=1)]
 
 
 def _yaml_quote(value: str) -> str:

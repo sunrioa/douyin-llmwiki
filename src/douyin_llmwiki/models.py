@@ -47,6 +47,16 @@ class Summary:
     actions: list[str]
     tags: list[str]
     related_topics: list[str]
+    knowledge_title: str = ""
+    knowledge_definition: str = ""
+    use_cases: list[str] = field(default_factory=list)
+    prerequisites: list[str] = field(default_factory=list)
+    workflow_steps: list[str] = field(default_factory=list)
+    decision_rules: list[str] = field(default_factory=list)
+    pitfalls: list[str] = field(default_factory=list)
+    practice_template: list[str] = field(default_factory=list)
+    review_questions: list[str] = field(default_factory=list)
+    transferable_methods: list[str] = field(default_factory=list)
     raw: dict[str, Any] = field(default_factory=dict)
 
 

@@ -26,6 +26,15 @@ class ObsidianTest(unittest.TestCase):
                 actions=[],
                 tags=["测试"],
                 related_topics=["主题"],
+                knowledge_title="测试知识",
+                knowledge_definition="把视频变成知识卡。",
+                use_cases=["学习"],
+                workflow_steps=["观看", "提炼", "复用"],
+                decision_rules=["优先沉淀可执行方法"],
+                pitfalls=["只复制原文"],
+                practice_template=["场景：..."],
+                review_questions=["如何判断适用？"],
+                transferable_methods=["结构化总结"],
             ),
             asr_model="qwen3-asr-flash-filetrans",
             summary_model="qwen-plus",
@@ -33,6 +42,13 @@ class ObsidianTest(unittest.TestCase):
         )
 
         self.assertIn("## 摘要", note)
+        self.assertIn("note_type: llmwiki-video-summary", note)
+        self.assertIn("## 知识沉淀", note)
+        self.assertIn("**主题**：测试知识", note)
+        self.assertIn("## 操作流程", note)
+        self.assertIn("1. 观看", note)
+        self.assertIn("## 实践模板", note)
+        self.assertIn("## 复习问题", note)
         self.assertIn("## 完整转写", note)
         self.assertIn('- "llmwiki"', note)
         self.assertIn('- "测试"', note)

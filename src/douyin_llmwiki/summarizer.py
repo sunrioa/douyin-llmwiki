@@ -86,7 +86,8 @@ class QwenSummarizer:
         stage = "最终总结" if final else f"分段总结 {chunk_index}/{chunk_total}"
         source_kind = "多个分段总结 JSON" if from_partials else "ASR 转写文本"
         system = (
-            "你是一个把视频音频转写整理成 Obsidian 知识库条目的中文知识总结 agent。"
+            "你是一个把视频音频转写整理成 Obsidian 本地知识库条目的中文知识萃取 agent。"
+            "目标不是写普通摘要，而是把内容沉淀为可复用、可执行、可复习的知识资产。"
             "只输出一个合法 JSON 对象，不要输出 Markdown、代码块或额外解释。"
         )
         user = f"""
@@ -98,10 +99,20 @@ class QwenSummarizer:
 
 请输出以下 JSON 字段，字段名必须完全一致：
 {{
-  "summary": "150-300 字中文摘要",
-  "key_points": ["3-8 条核心观点"],
+  "knowledge_title": "给这条视频沉淀出的知识主题命名，短而具体",
+  "knowledge_definition": "用 1-2 句话定义这条知识能解决什么问题",
+  "summary": "200-400 字中文摘要，聚焦可复用知识",
+  "key_points": ["5-10 条核心观点"],
   "concepts": ["关键概念或术语，每项可带一句解释"],
-  "actions": ["可执行事项；没有则给出空数组"],
+  "use_cases": ["适用场景或问题类型"],
+  "prerequisites": ["使用该技能前需要知道、准备或判断的条件"],
+  "workflow_steps": ["按顺序列出可执行步骤，每步尽量包含动作和判断依据"],
+  "decision_rules": ["选择、判断、取舍时可用的规则或口诀"],
+  "pitfalls": ["常见误区、失败模式或不适用场景"],
+  "practice_template": ["可直接复制到工作中的模板、清单或提示词骨架"],
+  "review_questions": ["用于复习和自测的问题"],
+  "transferable_methods": ["可以迁移到其他领域的方法论"],
+  "actions": ["下一步可执行事项；没有则给出空数组"],
   "tags": ["适合 Obsidian 的短标签，不含 #"],
   "related_topics": ["可继续研究的相关主题"]
 }}
@@ -109,6 +120,9 @@ class QwenSummarizer:
 要求：
 - 不要编造转写里没有的信息。
 - 对口语、重复和语气词做压缩。
+- 优先提炼“怎么做”“何时用”“如何判断”“哪里容易错”，少写空泛感想。
+- workflow_steps 必须能指导实践，不要只是复述观点。
+- practice_template 要像工作清单或提示词模板，便于复制使用。
 - tags 使用中文或英文短词，避免空格。
 - 如果输入是分段总结，请去重并合并观点。
 
@@ -132,6 +146,18 @@ def parse_summary_json(content: str) -> Summary:
         actions=_string_list(data["actions"]),
         tags=_string_list(data["tags"]),
         related_topics=_string_list(data["related_topics"]),
+        knowledge_title=str(data.get("knowledge_title") or data.get("skill_name") or "").strip(),
+        knowledge_definition=str(
+            data.get("knowledge_definition") or data.get("skill_definition") or ""
+        ).strip(),
+        use_cases=_string_list(data.get("use_cases")),
+        prerequisites=_string_list(data.get("prerequisites")),
+        workflow_steps=_string_list(data.get("workflow_steps")),
+        decision_rules=_string_list(data.get("decision_rules")),
+        pitfalls=_string_list(data.get("pitfalls")),
+        practice_template=_string_list(data.get("practice_template")),
+        review_questions=_string_list(data.get("review_questions")),
+        transferable_methods=_string_list(data.get("transferable_methods")),
         raw=data,
     )
 

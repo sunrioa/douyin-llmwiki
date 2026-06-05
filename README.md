@@ -1,10 +1,17 @@
 # douyin-llmwiki
 
-注:本readme.md由gpt5.5生成
-
 本地 CLI 工作流：输入单个公开视频的抖音分享链接，提取音频，调用阿里云百炼 ASR 转写，再用通义千问总结，最后写入 Obsidian Vault 的 LLMWiki Markdown 笔记。
 
 > 注意：不要把 `.env`、`cookies.txt`、下载的视频/音频、Obsidian Vault 内容提交到 GitHub。本项目只保存代码、测试、示例配置和文档。
+
+生成的 Obsidian 笔记会按更丰富的知识沉淀结构输出，不只是普通摘要。默认包含：
+
+- 知识主题和定义
+- 摘要、核心观点、关键概念
+- 适用场景、前置条件、操作流程
+- 判断准则、常见误区、实践模板
+- 可执行事项、复习问题、可迁移方法
+- 相关主题和完整转写
 
 ## 安装
 
@@ -76,6 +83,7 @@ pyproject.toml
 .gitignore
 src/
 tests/
+douyin-llmwiki-skill/
 ```
 
 确认不要提交：
@@ -127,6 +135,34 @@ douyin-llmwiki ingest --source auto "C:\path\to\video.mp4"
 ```
 
 第一版只处理单个公开分享链接，不支持批量、登录态、私密内容。
+
+## Codex Skill
+
+仓库内提供了一个独立 Codex Skill 分发目录：`douyin-llmwiki-skill/`。它不替代 CLI，而是把“配置检查、URL/本地文件选择、运行命令、常见错误处理、Obsidian 输出检查”封装成 Codex 可复用工作流，减少用户直接理解代码细节的成本。
+
+单独说明文档见：`douyin-llmwiki-skill/README.md`。真正需要安装到 Codex 的 Skill 本体是：`douyin-llmwiki-skill/douyin-llmwiki/`。
+
+本地安装：
+
+```powershell
+New-Item -ItemType Directory -Force "$env:USERPROFILE\.codex\skills" | Out-Null
+Copy-Item -Recurse -Force ".\douyin-llmwiki-skill\douyin-llmwiki" "$env:USERPROFILE\.codex\skills\"
+```
+
+安装后，在 Codex 中可以直接说：
+
+```text
+把这个抖音链接沉淀到 Obsidian：https://v.douyin.com/xxx/
+```
+
+也可以直接用 Skill 附带的包装脚本运行：
+
+```powershell
+python "$env:USERPROFILE\.codex\skills\douyin-llmwiki\scripts\run_douyin_llmwiki.py" --project (Get-Location).Path --source url "https://v.douyin.com/xxx/"
+python "$env:USERPROFILE\.codex\skills\douyin-llmwiki\scripts\run_douyin_llmwiki.py" --project (Get-Location).Path --source file "C:\path\to\video.mp4" --source-url "https://v.douyin.com/xxx/" --title "视频标题"
+```
+
+如果已经用 `pip install -e .` 或其他方式安装了 `douyin-llmwiki`，包装脚本可以省略 `--project`。
 
 ## 测试
 
