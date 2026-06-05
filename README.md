@@ -83,7 +83,6 @@ pyproject.toml
 .gitignore
 src/
 tests/
-douyin-llmwiki-skill/
 ```
 
 确认不要提交：
@@ -135,33 +134,6 @@ douyin-llmwiki ingest --source auto "C:\path\to\video.mp4"
 ```
 
 第一版只处理单个公开分享链接，不支持批量、登录态、私密内容。
-
-## Codex Skill
-
-仓库内提供了一个独立 Codex Skill 分发目录：`douyin-llmwiki-skill/`。这个 Skill 已经和上面的远程 ASR/下载 CLI 工作流解耦，只处理本地转写文本文件，例如 `111.txt`，由 Codex 或其他本地 agent 直接总结，再写入 Obsidian。
-
-单独说明文档见：`douyin-llmwiki-skill/README.md`。真正需要安装到 Codex 的 Skill 本体是：`douyin-llmwiki-skill/douyin-llmwiki/`。
-
-本地安装：
-
-```powershell
-New-Item -ItemType Directory -Force "$env:USERPROFILE\.codex\skills" | Out-Null
-Copy-Item -Recurse -Force ".\douyin-llmwiki-skill\douyin-llmwiki" "$env:USERPROFILE\.codex\skills\"
-```
-
-安装后，在 Codex 中可以直接说：
-
-```text
-把 C:\Users\ELAINA\Downloads\111.txt 总结成 Obsidian 知识笔记，放到 LLMWiki/LocalTranscripts 目录。
-```
-
-也可以直接用 Skill 附带的本地辅助脚本扫描 Vault：
-
-```powershell
-python "$env:USERPROFILE\.codex\skills\douyin-llmwiki\scripts\obsidian_transcript_note.py" discover --json
-```
-
-该 Skill 不需要 `.env`、DashScope、百炼、OSS、`ffmpeg`、`yt-dlp`、`douyin_crawl` 或 `douyin-llmwiki` CLI。
 
 ## 测试
 

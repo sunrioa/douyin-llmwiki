@@ -17,6 +17,7 @@ dist/
 *.egg-info/
 src/*.egg-info/
 _pdf_replace_preview/
+douyin-llmwiki-skill/
 *.mp4
 *.m4v
 *.mov
