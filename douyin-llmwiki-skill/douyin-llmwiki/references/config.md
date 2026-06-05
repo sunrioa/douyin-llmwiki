@@ -1,84 +1,97 @@
-# Configuration Reference
+# Local Configuration Reference
 
-## Required `.env`
+This skill has no required `.env` and no remote service configuration. It starts from a local transcript text file and writes a Markdown note into a local Obsidian Vault.
 
-Create `.env` in the `douyin-llmwiki` project or pass `--env-file` to the CLI.
+## Inputs
 
-```env
-DASHSCOPE_API_KEY=
-SUMMARY_MODEL=qwen-plus
-ASR_MODEL=qwen3-asr-flash-filetrans
-LOCAL_ASR_MODEL=qwen3-asr-flash
-STORAGE_BACKEND=bailian
-OBSIDIAN_VAULT_PATH=C:\Users\ELAINA\Documents\ObsidianVault
-LLMWIKI_DIR=LLMWiki/Douyin
-```
+Supported input files are plain text or text-like transcript files:
 
-`OBSIDIAN_VAULT_PATH` must be an existing Obsidian Vault directory. `LLMWIKI_DIR` is created inside that Vault.
+- `.txt`
+- `.md`
+- `.srt`
+- `.vtt`
+- any local text file the agent can read as UTF-8
 
-## Storage Backend
+The speech-to-text step must already be complete before this skill starts.
 
-Default:
+## Obsidian Vault
 
-```env
-STORAGE_BACKEND=bailian
-```
-
-This stores audio in the local cache, uploads it to Bailian temporary file storage to obtain a temporary URL for ASR, then deletes the local cache after the workflow finishes.
-
-Optional OSS mode:
-
-```env
-STORAGE_BACKEND=oss
-ALIYUN_ACCESS_KEY_ID=
-ALIYUN_ACCESS_KEY_SECRET=
-ALIYUN_OSS_ENDPOINT=https://oss-cn-hangzhou.aliyuncs.com
-ALIYUN_OSS_BUCKET=
-```
-
-OSS mode uploads the audio to private OSS, signs a short-lived URL, and deletes the temporary OSS object after ASR completes.
-
-## Douyin Download Backend
-
-Default:
-
-```env
-DOUYIN_DOWNLOADER=yt-dlp
-YT_DLP_COOKIES_FROM_BROWSER=edge
-YT_DLP_COOKIE_FILE=
-```
-
-Prefer `YT_DLP_COOKIE_FILE` when browser cookie databases are locked. The file should be Netscape cookie format.
-
-External downloader fallback:
-
-```env
-DOUYIN_DOWNLOADER=douyin_crawl
-DOUYIN_CRAWL_PATH=C:\tools\douyin_crawl
-DOUYIN_COOKIE_FILE=C:\path\to\cookies.txt
-DOUYIN_DOWNLOAD_DIR=C:\path\to\.cache\douyin-downloads
-```
-
-Use this only when the user has installed `douyin_crawl` separately. Do not copy its source into this project.
-
-## Local Tools
-
-The local machine needs:
-
-- Python 3.11+
-- `ffmpeg`
-- `ffprobe`
-- `yt-dlp` unless URL mode uses only `douyin_crawl`
-
-Run:
+Preferred: ask the user for the Vault path, for example:
 
 ```powershell
-douyin-llmwiki doctor
+C:\Users\ELAINA\Documents\ObsidianVault
 ```
 
-Common failures:
+The helper script validates that the path exists, is a directory, and contains `.obsidian`.
 
-- Missing Vault path: fix `OBSIDIAN_VAULT_PATH`.
-- Missing FFmpeg: install FFmpeg and reopen the terminal.
-- Fresh cookies required: export cookies to a file or use local file mode.
-- ASR auth failure: verify `DASHSCOPE_API_KEY` locally without pasting it into chat.
+If the user does not know the Vault path, discover local Vaults:
+
+```powershell
+python <skill-dir>\scripts\obsidian_transcript_note.py discover --json
+```
+
+Optional scan controls:
+
+```powershell
+python <skill-dir>\scripts\obsidian_transcript_note.py discover --root "D:\Notes" --root "$env:USERPROFILE\Documents" --max-depth 6 --json
+```
+
+Default scan roots are common user folders such as Documents, Desktop, OneDrive, and the user home directory. The script looks for `.obsidian` directories and returns their parent folders.
+
+If multiple Vaults are found, ask the user which one to use instead of guessing.
+
+## Vault-Relative Directory
+
+Default:
+
+```text
+LLMWiki/LocalTranscripts/{year}
+```
+
+Supported placeholders:
+
+- `{year}` -> `2026`
+- `{date}` -> `2026-06-05`
+
+Examples:
+
+```text
+LLMWiki/LocalTranscripts/{year}
+LLMWiki/Meetings/{year}
+Resources/VideoNotes/{date}
+```
+
+The helper creates missing directories inside the Vault.
+
+## Summary JSON
+
+The current Codex/local agent should create the summary. The helper script only renders and writes it.
+
+Minimum useful JSON:
+
+```json
+{
+  "knowledge_title": "主题",
+  "knowledge_definition": "定义",
+  "summary": "摘要",
+  "key_points": ["观点"],
+  "actions": [],
+  "tags": ["知识库"],
+  "related_topics": []
+}
+```
+
+Recommended fields are listed in `SKILL.md`.
+
+## No Remote Services
+
+Do not configure or call:
+
+- DashScope / Bailian
+- OSS
+- yt-dlp
+- douyin_crawl
+- `douyin-llmwiki` CLI
+- any ASR, downloader, or remote LLM API from this skill
+
+The only network-like dependency may be the Codex/local agent runtime itself. The skill files and helper script do not invoke external services.

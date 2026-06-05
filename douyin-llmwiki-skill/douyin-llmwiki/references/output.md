@@ -1,30 +1,35 @@
 # Output Reference
 
-The generated Obsidian Markdown is a rich knowledge note. It is not an Obsidian "Skill card".
+The generated Obsidian Markdown is a local transcript knowledge note. It is not a Codex Skill card and does not depend on the old remote Douyin audio workflow.
 
 ## Path
 
+Default:
+
 ```text
-<OBSIDIAN_VAULT_PATH>/<LLMWIKI_DIR>/YYYY/YYYY-MM-DD_<title-or-video-id>.md
+<Vault>/LLMWiki/LocalTranscripts/YYYY/YYYY-MM-DD_<title>.md
 ```
 
-The CLI sanitizes the filename and creates a unique name if a note already exists.
+If the user provides a custom directory template, use that instead:
+
+```text
+<Vault>/<custom-directory>/YYYY-MM-DD_<title>.md
+```
+
+The helper sanitizes the filename and creates a unique name if a note already exists.
 
 ## Frontmatter
 
-The note includes metadata for later querying:
+The note includes local metadata:
 
 - `title`
-- `note_type: llmwiki-video-summary`
-- `source: douyin`
-- `source_url`
-- `video_id`
-- `uploader`
-- `duration_seconds`
+- `note_type: local-transcript-summary`
+- `source`
+- `transcript_file`
 - `created`
-- `asr_model`
-- `summary_model`
 - `tags`
+
+It should not include remote ASR, DashScope, Bailian, OSS, downloader, or Douyin-only fields unless the transcript itself explicitly needs such context.
 
 ## Sections
 
@@ -35,7 +40,6 @@ The note should contain:
 - `## 核心观点`
 - `## 关键概念`
 - `## 适用场景`
-- `## 前置条件`
 - `## 操作流程`
 - `## 判断准则`
 - `## 常见误区`
@@ -48,12 +52,13 @@ The note should contain:
 
 ## Summary Quality
 
-A good note should help the user reuse the content later. Prefer:
+A good note should make the transcript reusable:
 
-- Concrete operating steps over vague impressions.
-- Decision rules over generic opinions.
-- Use cases and prerequisites over broad claims.
-- Pitfalls and non-applicable cases when the transcript supports them.
-- A copyable practice template when the video implies a repeatable workflow.
+- Extract applicable methods, not only what was said.
+- Preserve caveats and non-applicable cases when present.
+- Turn process-like content into ordered steps.
+- Turn decisions into explicit rules or checklists.
+- Keep unsupported sections short instead of inventing details.
+- Keep the full transcript at the bottom for traceability.
 
-Do not invent facts that are not supported by the transcript. If the video is shallow, write a concise note and leave weak fields empty or explicit.
+If the transcript is too noisy, state the uncertainty in the summary and preserve the original transcript.

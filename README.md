@@ -138,7 +138,7 @@ douyin-llmwiki ingest --source auto "C:\path\to\video.mp4"
 
 ## Codex Skill
 
-仓库内提供了一个独立 Codex Skill 分发目录：`douyin-llmwiki-skill/`。它不替代 CLI，而是把“配置检查、URL/本地文件选择、运行命令、常见错误处理、Obsidian 输出检查”封装成 Codex 可复用工作流，减少用户直接理解代码细节的成本。
+仓库内提供了一个独立 Codex Skill 分发目录：`douyin-llmwiki-skill/`。这个 Skill 已经和上面的远程 ASR/下载 CLI 工作流解耦，只处理本地转写文本文件，例如 `111.txt`，由 Codex 或其他本地 agent 直接总结，再写入 Obsidian。
 
 单独说明文档见：`douyin-llmwiki-skill/README.md`。真正需要安装到 Codex 的 Skill 本体是：`douyin-llmwiki-skill/douyin-llmwiki/`。
 
@@ -152,17 +152,16 @@ Copy-Item -Recurse -Force ".\douyin-llmwiki-skill\douyin-llmwiki" "$env:USERPROF
 安装后，在 Codex 中可以直接说：
 
 ```text
-把这个抖音链接沉淀到 Obsidian：https://v.douyin.com/xxx/
+把 C:\Users\ELAINA\Downloads\111.txt 总结成 Obsidian 知识笔记，放到 LLMWiki/LocalTranscripts 目录。
 ```
 
-也可以直接用 Skill 附带的包装脚本运行：
+也可以直接用 Skill 附带的本地辅助脚本扫描 Vault：
 
 ```powershell
-python "$env:USERPROFILE\.codex\skills\douyin-llmwiki\scripts\run_douyin_llmwiki.py" --project (Get-Location).Path --source url "https://v.douyin.com/xxx/"
-python "$env:USERPROFILE\.codex\skills\douyin-llmwiki\scripts\run_douyin_llmwiki.py" --project (Get-Location).Path --source file "C:\path\to\video.mp4" --source-url "https://v.douyin.com/xxx/" --title "视频标题"
+python "$env:USERPROFILE\.codex\skills\douyin-llmwiki\scripts\obsidian_transcript_note.py" discover --json
 ```
 
-如果已经用 `pip install -e .` 或其他方式安装了 `douyin-llmwiki`，包装脚本可以省略 `--project`。
+该 Skill 不需要 `.env`、DashScope、百炼、OSS、`ffmpeg`、`yt-dlp`、`douyin_crawl` 或 `douyin-llmwiki` CLI。
 
 ## 测试
 

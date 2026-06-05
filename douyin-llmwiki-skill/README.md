@@ -1,8 +1,18 @@
 # Douyin LLMWiki Codex Skill
 
-这个文件夹是 `douyin-llmwiki` 的独立 Codex Skill 分发包。
+这个文件夹是一个完全本地化的 Codex Skill 分发包。它不再依赖抖音下载、音频提取、百炼 ASR、OSS、DashScope 或 `douyin-llmwiki` CLI。
 
-目录结构：
+它的输入是已经由本地语音识别工具转换好的文字文件，例如：
+
+```text
+111.txt
+meeting-transcript.md
+video.srt
+```
+
+总结工作由当前 Codex 或其他本地 agent 直接完成，然后写入用户指定或自动发现的 Obsidian Vault。
+
+## 目录结构
 
 ```text
 douyin-llmwiki-skill/
@@ -29,59 +39,58 @@ Copy-Item -Recurse -Force ".\douyin-llmwiki-skill\douyin-llmwiki" "$env:USERPROF
 
 ## 前置条件
 
-这个 Skill 是工作流包装层，不内置业务代码和密钥。运行前需要本机已经有：
+只需要：
 
-- `douyin-llmwiki` CLI，或本仓库源码 checkout
-- 已配置的 `.env`
-- 可写的 Obsidian Vault
-- `ffmpeg` / `ffprobe`
-- 阿里云百炼 `DASHSCOPE_API_KEY`
-- 可选：`yt-dlp` cookie 文件或外部 `douyin_crawl`
+- 一个本地转写文本文件
+- 一个可写的 Obsidian Vault
+- Codex 或其他能读取本地文件并生成总结的本地 agent
 
-敏感信息只放在本机 `.env` 或 cookie 文件中，不要写入 Skill 文件，也不要提交到 GitHub。
+不需要：
+
+- `.env`
+- 阿里云百炼 / DashScope
+- OSS
+- ffmpeg / ffprobe
+- yt-dlp
+- douyin_crawl
+- `douyin-llmwiki` CLI
 
 ## 在 Codex 中使用
 
-安装后，可以直接对 Codex 说：
+可以直接对 Codex 说：
 
 ```text
-把这个抖音链接沉淀到 Obsidian：https://v.douyin.com/xxx/
+把 C:\Users\ELAINA\Downloads\111.txt 总结成 Obsidian 知识笔记，放到我的 LLMWiki/LocalTranscripts 目录。
 ```
 
-或者：
+如果不知道 Vault 路径，也可以说：
 
 ```text
-把这个本地视频转成 Obsidian 知识笔记：C:\path\to\video.mp4，来源链接是 https://v.douyin.com/xxx/
+扫描我的电脑找到 Obsidian Vault，然后把 111.txt 总结进去。
 ```
 
-Skill 会指导 Codex 选择 URL 模式或本地文件模式，并运行底层 CLI。
+如果发现多个 Vault，Skill 会要求选择一个，而不是自动猜。
 
-## 直接运行包装脚本
+## 直接运行本地辅助脚本
 
-如果 CLI 是从当前源码项目运行：
+扫描 Vault：
 
 ```powershell
-python ".\douyin-llmwiki-skill\douyin-llmwiki\scripts\run_douyin_llmwiki.py" --project (Get-Location).Path --source url "https://v.douyin.com/xxx/"
+python ".\douyin-llmwiki-skill\douyin-llmwiki\scripts\obsidian_transcript_note.py" discover --json
 ```
 
-本地文件模式：
+写入笔记时，先由 Codex 或本地 agent 生成一个 summary JSON，然后运行：
 
 ```powershell
-python ".\douyin-llmwiki-skill\douyin-llmwiki\scripts\run_douyin_llmwiki.py" --project (Get-Location).Path --source file "C:\path\to\video.mp4" --source-url "https://v.douyin.com/xxx/" --title "视频标题"
-```
-
-如果 `douyin-llmwiki` 已经安装到当前环境，可以省略 `--project`：
-
-```powershell
-python ".\douyin-llmwiki-skill\douyin-llmwiki\scripts\run_douyin_llmwiki.py" --source url "https://v.douyin.com/xxx/"
+python ".\douyin-llmwiki-skill\douyin-llmwiki\scripts\obsidian_transcript_note.py" write "C:\path\to\111.txt" --vault "C:\path\to\ObsidianVault" --directory "LLMWiki/LocalTranscripts/{year}" --title "笔记标题" --summary-json "C:\path\to\summary.json"
 ```
 
 ## 输出
 
-成功后，CLI 会打印生成的 Obsidian Markdown 路径。默认位置：
+默认输出位置：
 
 ```text
-<OBSIDIAN_VAULT_PATH>/<LLMWIKI_DIR>/YYYY/YYYY-MM-DD_<标题或视频ID>.md
+<Vault>/LLMWiki/LocalTranscripts/YYYY/YYYY-MM-DD_<标题>.md
 ```
 
 Obsidian 笔记是“知识沉淀”结构，不是 Codex Skill 卡片。
