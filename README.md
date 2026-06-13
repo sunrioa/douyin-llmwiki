@@ -2,7 +2,7 @@
 
 本地 CLI 工作流：输入单个公开视频的抖音分享链接，提取音频，调用阿里云百炼 ASR 转写，再用通义千问总结，最后写入 Obsidian Vault 的 LLMWiki Markdown 笔记。
 
-> 注意：不要把 `.env`、`cookies.txt`、下载的视频/音频、Obsidian Vault 内容提交到 GitHub。本项目只保存代码、测试、示例配置和文档。
+
 
 生成的 Obsidian 笔记会按更丰富的知识沉淀结构输出，不只是普通摘要。默认包含：
 
@@ -71,31 +71,7 @@ douyin-llmwiki ingest --source url "https://v.douyin.com/xxx/"
 
 当前项目不会复制 `douyin_crawl` 源码，只作为外部命令调用；下载成功后会复用本地文件切片 ASR 流程。
 
-## GitHub 发布前检查
 
-确认只提交这些内容：
-
-```text
-README.md
-LICENSE
-pyproject.toml
-.env.example
-.gitignore
-src/
-tests/
-```
-
-确认不要提交：
-
-```text
-.env
-cookies.txt
-.cache/
-.venv/
-_pdf_replace_preview/
-*.mp4 / *.mp3 / *.m4a / *.wav
-Obsidian Vault 内容
-```
 
 `douyin_crawl` 是可选外部下载器，不包含在本仓库内；如果使用它，请用户自行 clone 并按 README 配置 `DOUYIN_CRAWL_PATH`。
 
